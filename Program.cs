@@ -17,9 +17,8 @@ app.UseStaticFiles();
 app.MapGet("/", async context =>
 {
     var httpClient = context.RequestServices.GetRequiredService<HttpClient>(); // DIから
-    HttpResponseMessage response = await httpClient.GetAsync("https://www.meijiyasuda.co.jp/");
-    var tenantID = response.Headers.GetValues("Date").FirstOrDefault();
-    // var tenantID = response.Headers.GetValues("X-MS-CLIENT-PRINCIPAL-ID").FirstOrDefault();
+    HttpResponseMessage response = await httpClient.GetAsync("ヘッダーを取るためのURL");
+    var tenantID = response.Headers.GetValues("X-MS-CLIENT-PRINCIPAL-ID").FirstOrDefault();
     //tenantID = "期待ID";
     // nullか所定のテナントIDでなければfalse
     bool isValidTenantId = !string.IsNullOrEmpty(tenantID) && IsValidTenantId(tenantID, "期待ID");
