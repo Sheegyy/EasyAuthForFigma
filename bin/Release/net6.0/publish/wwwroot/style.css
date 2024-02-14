@@ -1,0 +1,36 @@
+/* style.css */
+
+body {
+  font-family: Arial, sans-serif; /*  フォントを設定 */
+  background-color: #f0f0f0; /* 背景色を設定 */
+  color: #333; /*  テキストの色を設定 */
+}
+
+h1 {
+  color: #ff6347; /* ヘッダーの色を設定 */
+  text-align: center; /*  テキストを中央に配置 */
+}
+
+p {
+  font-size: 1em; /*  フォントサイズを設定 */
+  margin: 1em 0; /*  マージンを設定 */
+}
+
+/*  ボタンのスタイル */
+button {
+  background-color: #4caf50; /*  ボタンの背景色 */
+  border: none; /*  ボーダーを非表示 */
+  color: white; /*  ボタンのテキスト色 */
+  padding: 15px 32px; /*  ボタンのパディング */
+  text-align: center; /*  テキストを中央に配置 */
+  text-decoration: none; /*  テキスト装飾を無効化 */
+  display: inline-block; /*  インラインブロックとして表示 */
+  font-size: 16px; /*  フォントサイズを設定 */
+  margin: 4px 2px; /*  マージンを設定 */
+  cursor: pointer; /*  カーソルをポインタに変更 */
+}
+
+/*  ボタンにホバーした時のスタイル */
+button:hover {
+  background-color: #45a049; /*  ホバー時の背景色 */
+}

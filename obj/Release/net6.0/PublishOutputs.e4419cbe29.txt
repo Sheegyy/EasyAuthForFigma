@@ -1,0 +1,7 @@
+C:\Users\meijiyasuda\source\repos\WebApplication2\bin\Release\net6.0\publish\WebApplication2.exe
+C:\Users\meijiyasuda\source\repos\WebApplication2\bin\Release\net6.0\publish\appsettings.Development.json
+C:\Users\meijiyasuda\source\repos\WebApplication2\bin\Release\net6.0\publish\appsettings.json
+C:\Users\meijiyasuda\source\repos\WebApplication2\bin\Release\net6.0\publish\WebApplication2.dll
+C:\Users\meijiyasuda\source\repos\WebApplication2\bin\Release\net6.0\publish\WebApplication2.deps.json
+C:\Users\meijiyasuda\source\repos\WebApplication2\bin\Release\net6.0\publish\WebApplication2.runtimeconfig.json
+C:\Users\meijiyasuda\source\repos\WebApplication2\bin\Release\net6.0\publish\WebApplication2.pdb
