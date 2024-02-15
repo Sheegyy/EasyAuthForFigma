@@ -1,67 +1,38 @@
-using System.Text.Json;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
+using System.IO;
+using System.Net.Http;
+using System.Threading.Tasks;
+using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
-builder.Services.AddHttpClient(); // DI registration
-builder.Services.AddHttpContextAccessor();
+//builder.Services.AddHttpClient(); // DI登録
 
 var app = builder.Build();
 app.UseStaticFiles();
 
 app.MapGet("/", async context =>
 {
-    try
-    {
-        var domainName = await GetDomainNameFromAuthMe(context);
-        var isValidDomainName = IsValidDomainName(domainName, "期待ドメイン");
-        var filePath = isValidDomainName ? GetStaticHtmlFilePath() : GetForbiddenHtmlFilePath();
-        await context.Response.SendFileAsync(filePath);
-    }
-    catch (Exception ex)
-    {
-        await context.Response.WriteAsync($"エラー発生: {ex.Message}");
-    }
+    context.Request.Headers.TryGetValue("X-MS-CLIENT-PRINCIPAL-NAME",out var principalName);
+    var domainName = GetDomainNameFromString(principalName);
+    //domainName = "期待ドメイン名";
+    // nullか所定のドメイン名でなければfalse
+    bool isValidDomainName = !string.IsNullOrEmpty(domainName) && IsValidDomainName(domainName, "期待ドメイン名");
+    string filePath = isValidDomainName ? GetStaticHtmlFilePath() : GetForbiddenHtmlFilePath();
+    await context.Response.SendFileAsync(filePath);
 });
 
 app.Run();
 
 /// <summary>
-/// AuthMeサービスからテナントIDを非同期に取得します。
+///  指定されたドメイン名が有効かどうかをチェックします。
 /// </summary>
-/// <param name="context">リクエストとレスポンスオブジェクトを含むHTTPコンテキスト。</param>
-/// <returns>非同期操作を表すタスク。結果はテナントIDです。</returns>
-/// <exception cref="Exception">テナントIDを取得できない場合にスローされます。</exception>
-async Task<string> GetDomainNameFromAuthMe(HttpContext context)
-{
-    const string authMeUrl = "/.auth/me";
-    var httpClient = context.RequestServices.GetRequiredService<HttpClient>();
-    var response = await httpClient.GetAsync(authMeUrl);
-
-    if (!response.IsSuccessStatusCode)
-    {
-        throw new Exception($"ドメイン取得失敗: {response.ReasonPhrase}");
-    }
-
-    var content = await response.Content.ReadAsStringAsync();
-    var jsonDocument = JsonDocument.Parse(content);
-    var userId = jsonDocument.RootElement.GetProperty("user_id").GetString();
-    var atSymbolPosition = userId.IndexOf('@');
-
-    if (atSymbolPosition >=  0)
-    {
-        userId = userId.Substring(atSymbolPosition +  1); //'@'以降取り出し
-    }
-
-    return userId;
-}
-
-/// <summary>
-///  指定されたテナントIDが有効かどうかをチェックします。
-/// </summary>
-/// <param name="domainName">チェックするテナントID</param>
-/// <param name="expectedDomainName">期待されるテナントID</param>
-/// <returns>テナントIDが有効であればtrue、それ以外の場合はfalse</returns>
+/// <param name="domainName">チェックするドメイン名</param>
+/// <param name="expecteddomainName">期待されるドメイン名</param>
+/// <returns>ドメイン名が有効であればtrue、それ以外の場合はfalse</returns>
 bool IsValidDomainName(string domainName, string expectedDomainName)
 {
     if (domainName == null)
@@ -69,6 +40,20 @@ bool IsValidDomainName(string domainName, string expectedDomainName)
         return false;
     }
     return domainName.Equals(expectedDomainName);
+}
+
+/// <summary>
+///  AD認証済みのアプリのヘッダーから抽出可能なprincipalNameからドメイン部分を抽出します。
+/// </summary>
+/// <param name="principalName">ドメインを抽出する対象のprincipalName。</param>
+/// <returns>principalNameのドメイン部分、または'@'文字が含まれていない場合は空文字列。</returns>
+string GetDomainNameFromString(string principalName)
+{
+    int indexOfAt = principalName.IndexOf('@');
+    if (indexOfAt >=   0) {
+        return principalName.Substring(indexOfAt +   1);
+    }
+    return string.Empty;
 }
 
 /// <summary>
