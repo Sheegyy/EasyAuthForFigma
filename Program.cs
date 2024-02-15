@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using System.IO;
 using System.Net.Http;
+using System.Net.NetworkInformation;
 using System.Threading.Tasks;
 using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 
@@ -16,7 +17,7 @@ app.UseStaticFiles();
 
 app.MapGet("/", async context =>
 {
-    context.Request.Headers.TryGetValue("X-MS-CLIENT-PRINCIPAL-NAME",out var principalName);
+    context.Response.Headers.TryGetValue("X-MS-CLIENT-PRINCIPAL-NAME",out var principalName);
     var domainName = GetDomainNameFromString(principalName);
     //domainName = "期待ドメイン名";
     // nullか所定のドメイン名でなければfalse
@@ -49,9 +50,9 @@ bool IsValidDomainName(string domainName, string expectedDomainName)
 /// <returns>principalNameのドメイン部分、または'@'文字が含まれていない場合は空文字列。</returns>
 string GetDomainNameFromString(string principalName)
 {
-    int indexOfAt = principalName.IndexOf('@');
-    if (indexOfAt >=   0) {
-        return principalName.Substring(indexOfAt +   1);
+    int indexOfAt = string.IsNullOrEmpty(principalName) ? -1 : principalName.IndexOf('@');
+    if (indexOfAt >=  0) {
+        return principalName.Substring(indexOfAt +  1);
     }
     return string.Empty;
 }
